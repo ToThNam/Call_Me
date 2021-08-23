@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
 import { View, Text, TextInput, TouchableOpacity } from 'react-native'
-// import auth from '@react-native-firebase/auth';
+import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
+import firebase from "@react-native-firebase/app";
 import { Alert } from 'react-native';
-import { auth, authCurrent } from '../components/FireConect';
+// import { auth, authCurrent } from '../components/FireConect';
 
 export default function Register() {
   const [Email, useEmail] = useState('');
@@ -12,9 +13,10 @@ export default function Register() {
   const [ImgUrl, setImgUrl] = useState('');
   // const auth = firebase.auth();
   const regisiter = (Email: string, Password: string) => {
-    auth
+    auth()
       .createUserWithEmailAndPassword(Email, Password)
       .then((userCredential) => {
+        const authCurrent: any = firebase.auth().currentUser;
         console.log('User account created & signed in!');
         Alert.alert(
           "Thông báo",

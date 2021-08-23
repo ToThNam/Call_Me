@@ -5,6 +5,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import Login from '../screens/Login'
 import Register from '../screens/Register';
 import FirstScreen from '../screens/FirstScreen';
+import FriendRequest from '../screens/FriendRequest';
 const Stack = createStackNavigator();
 const Authent = () => {
   return (
@@ -17,6 +18,7 @@ const Authent = () => {
       <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="Register" component={Register} />
       <Stack.Screen name="FirstScreen" component={FirstScreen} />
+      <Stack.Screen name="FriendRequest" component={FriendRequest} />
     </Stack.Navigator>
   );
 };

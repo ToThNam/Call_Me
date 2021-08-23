@@ -1,11 +1,19 @@
 import React, { useState, useEffect } from 'react'
 import { View, Text, TextInput, TouchableOpacity, Image, FlatList } from 'react-native'
-import { auth, authCurrent } from '../components/FireConect';
-import firestore, { firebase } from '@react-native-firebase/firestore';
-
+import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
+import firebase from "@react-native-firebase/app";
+interface FriendIF {
+  _iddocument: string,
+  id: string,
+}
 export default function FirstScreen({ navigation }: { navigation: any }) {
-  const [data, setData] = useState();
+  const [data, setData] = useState([]);
+  const [authID, setAuthId] = useState();
   useEffect(() => {
+    auth()
+    const authCurrent: any = firebase.auth().currentUser?.uid;
+    setAuthId(authCurrent);
     firestore()
       .collection('users')
       .get()
@@ -16,30 +24,28 @@ export default function FirstScreen({ navigation }: { navigation: any }) {
       //   });
       // });
       .then(querySnapshot => {
-        const docsData = querySnapshot.docs.map(doc => ({
+        const docsData: any = querySnapshot.docs.map(doc => ({
           // _iddocument: doc.id,
           ...doc.data(),
 
         }));
         setData(docsData);
-        console.log('docsData ', docsData);
       })
       .catch(error => {
         console.log('Error getting documents: ', error);
       });
   }, []);
 
-  const addFriend = (idFriend: any) => {
-    console.log('checkk');
+  const addFriend = (idFriend: string,) => {
     firestore()
       .collection('RequestFriend').add({
-        idSender: authCurrent.uid,
+        idSender: authID,
         idReceiver: idFriend,
         accept: false,
       });
   }
   const SignOut = () => {
-    auth
+    auth()
       .signOut()
       .then(() => {
         // Sign-out successful.
@@ -56,19 +62,24 @@ export default function FirstScreen({ navigation }: { navigation: any }) {
       </TouchableOpacity>
       <FlatList
         data={data}
-        renderItem={({ item }) => {
+        renderItem={(item: any) => {
           return (
-            <View>
-              <Text>{item.displayName}</Text>
-              <Image source={{ uri: item.ImgUrl }} style={{ height: 100, width: 100 }} />
-              <TouchableOpacity onPress={() => addFriend(item.id)}>
-                <Text>Thêm bạn bè</Text>
-              </TouchableOpacity>
-            </View>
+            authID !== item.item.id ?
+              <View>
+                <Text>{item.item.displayName}</Text>
+                <Image source={{ uri: item.item.ImgUrl }} style={{ height: 100, width: 100 }} />
+                <TouchableOpacity onPress={() => addFriend(item.item.id)}>
+                  <Text>Thêm bạn bè</Text>
+                </TouchableOpacity>
+              </View> :
+              <View></View>
           )
         }}
       />
-
+      <TouchableOpacity onPress={() => navigation.navigate('FriendRequest')}>
+        <Text>Frend request</Text>
+      </TouchableOpacity>
     </View>
   )
 }
+
