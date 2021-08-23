@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { View, Text, TextInput, TouchableOpacity, Image, FlatList } from 'react-native'
+import { View, Text, TextInput, TouchableOpacity, Image, FlatList, NativeSegmentedControlIOSChangeEvent } from 'react-native'
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import firebase from "@react-native-firebase/app";
@@ -17,25 +17,23 @@ export default function FirstScreen({ navigation }: { navigation: any }) {
     firestore()
       .collection('users')
       .get()
-      // .then(querySnapshot => {
-      //   console.log('Total users: ', querySnapshot.size);
-      //   querySnapshot.forEach(documentSnapshot => {
-      //     console.log('User ID: ', documentSnapshot.id, documentSnapshot.data());
-      //   });
-      // });
       .then(querySnapshot => {
         const docsData: any = querySnapshot.docs.map(doc => ({
           // _iddocument: doc.id,
           ...doc.data(),
-
         }));
         setData(docsData);
       })
       .catch(error => {
         console.log('Error getting documents: ', error);
       });
-  }, []);
-
+    firestore()
+      .collection('users')
+      .doc(authID)
+      .update({
+        status: true,
+      });
+  }, [authID]);
   const addFriend = (idFriend: string,) => {
     firestore()
       .collection('RequestFriend').add({
@@ -44,11 +42,16 @@ export default function FirstScreen({ navigation }: { navigation: any }) {
         accept: false,
       });
   }
-  const SignOut = () => {
+  const SignOut = (authID: any) => {
+    firestore()
+      .collection('users')
+      .doc(authID)
+      .update({
+        status: false,
+      });
     auth()
       .signOut()
       .then(() => {
-        // Sign-out successful.
         navigation.replace('Login');
       })
       .catch(error => {
@@ -57,7 +60,7 @@ export default function FirstScreen({ navigation }: { navigation: any }) {
   };
   return (
     <View>
-      <TouchableOpacity onPress={SignOut}>
+      <TouchableOpacity onPress={() => { SignOut(authID) }}>
         <Text>Log out</Text>
       </TouchableOpacity>
       <FlatList
@@ -68,17 +71,23 @@ export default function FirstScreen({ navigation }: { navigation: any }) {
               <View>
                 <Text>{item.item.displayName}</Text>
                 <Image source={{ uri: item.item.ImgUrl }} style={{ height: 100, width: 100 }} />
+                {item.item.status == true ?
+                  <Image source={require('../assets/images/online.png')} style={{ height: 20, width: 20 }} /> :
+                  <Image source={require('../assets/images/offline.png')} style={{ height: 20, width: 20 }} />
+                }
                 <TouchableOpacity onPress={() => addFriend(item.item.id)}>
                   <Text>Thêm bạn bè</Text>
                 </TouchableOpacity>
               </View> :
-              <View></View>
+              <View />
           )
+
         }}
       />
       <TouchableOpacity onPress={() => navigation.navigate('FriendRequest')}>
         <Text>Frend request</Text>
       </TouchableOpacity>
+
     </View>
   )
 }

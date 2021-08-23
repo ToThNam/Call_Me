@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native'
 import auth from '@react-native-firebase/auth';
 import { useNavigation } from '@react-navigation/native';
-
+import firestore from '@react-native-firebase/firestore';
+import firebase from "@react-native-firebase/app";
 export default function Login({ navigation }: { navigation: any }) {
   // const navigation = useNavigation()
   const [Email, useEmail] = useState('');
@@ -10,6 +11,7 @@ export default function Login({ navigation }: { navigation: any }) {
   const [user, setUser] = useState();
   const SignIn = (Email: string, Password: string) => {
     auth()
+
       .signInWithEmailAndPassword(Email, Password)
       .catch(error => {
         var errorMessage = error.message;

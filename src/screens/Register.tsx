@@ -26,13 +26,15 @@ export default function Register() {
           ]
         );
         firestore()
-          .collection('users').add({
+          .collection('users').doc(authCurrent.uid).set({
             id: authCurrent.uid,
             displayName: Name,
+            status: false,
             ImgUrl: ImgUrl
               ? ImgUrl
               : 'https://cdn0.iconfinder.com/data/icons/set-ui-app-android/32/8-512.png',
           });
+
         var user = userCredential.user;
         user
           .updateProfile({
